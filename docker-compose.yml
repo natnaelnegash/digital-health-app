@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:15 # Use a specific, recent version of Postgres
+    restart: always
+    container_name: digital-health-db
+    environment:
+      POSTGRES_USER: user # Your database username
+      POSTGRES_PASSWORD: password # Your database password
+      POSTGRES_DB: healthapp # Your database name
+    ports:
+      - "5432:5432" # Maps the port from the container to your local machine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persists database data
+
+volumes:
+  postgres_data:

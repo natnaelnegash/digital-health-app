@@ -1,0 +1,59 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  firstname String?
+  lastname  String?
+  role      Role     @default(PATIENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Add these two lines for the relationship
+  appointmentsAsPatient  Appointment[] @relation("PatientAppointments")
+  appointmentsAsProvider Appointment[] @relation("ProviderAppointments")
+}
+
+// Add the new Appointment Model
+model Appointment {
+  id        String            @id @default(cuid())
+  startTime DateTime
+  endTime   DateTime
+  status    AppointmentStatus @default(SCHEDULED)
+  reason    String?
+
+  patient    User   @relation("PatientAppointments", fields: [patientId], references: [id])
+  patientId  String
+  provider   User   @relation("ProviderAppointments", fields: [providerId], references: [id])
+  providerId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // This ensures a patient can't have two appointments at the exact same time
+  @@unique([patientId, startTime])
+  @@unique([providerId, startTime])
+}
+
+// Add the new Enum for appointment status
+enum AppointmentStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum Role {
+  PATIENT
+  PROVIDER
+  ADMIN
+}
