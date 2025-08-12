@@ -1,5 +1,5 @@
 import prisma from "../db";
-import { Role } from "@prisma/client";
+import { AppointmentStatus, Role } from "@prisma/client";
 import { JwtPayload } from "../types/express";
 
 interface AppointmentData {
@@ -7,6 +7,31 @@ interface AppointmentData {
     providerId: string
     startTime: string
     reason: string
+}
+
+export const cancelAppointment = async (appointmentId: string, user: JwtPayload) => {
+    const {userId, role} = user
+
+    const appointment = await prisma.appointment.findUnique({where: {id: appointmentId}})
+
+    if (!appointment) {
+        throw new Error('Not Found: Appointment not found')
+    }
+
+    const isPatient = role === Role.PATIENT && appointment.patientId === user.userId
+    const isProvider = role == Role.PROVIDER && appointment.providerId === user.userId
+    const isAdmin = role == Role.ADMIN
+
+    if(!isPatient && !isProvider && !isAdmin) {
+        throw new Error('Forbidden: You do not have permission to cancel this appointment.')
+    }
+
+    if (appointment.status !== AppointmentStatus.SCHEDULED) {
+        throw new Error(`Bad Request: Appointment can't be cancelled with status ${appointment.status}` )
+    }
+
+    const updatedAppointment = await prisma.appointment.update({where: {id: appointmentId}, data: {status: AppointmentStatus.CANCELLED}})
+    return updatedAppointment
 }
 
 export const createAppointment = async (data: AppointmentData) => {
