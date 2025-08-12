@@ -7,5 +7,6 @@ router.use(authMiddleware)
 
 router.post('/', AppointmentController.createAppointment)
 router.get('/', AppointmentController.getAll)
+router.patch('/:id/cancel', AppointmentController.cancelAppointment)
 
 export default router
