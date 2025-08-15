@@ -3,15 +3,18 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import RegisterPage from './pages/RegisterPage';
 import './App.css';
 import LoginPage from './pages/LoginPage';
+import NavBar from './components/NavBar';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const HomePage = () => <h1>Welcome to the Digital Health App!</h1>;
+const DashboardPage = () => <h1>Your Appointments Dashboard</h1>;
 
 function App() {
   return (
     <Router>
       <div>
-        <nav>
-          <ul>
+        {/* <nav>
+          <ul style={{ display: 'flex', justifyContent: 'space-between' }}>
             <li>
               <Link to="/">Home</Link>
             </li>
@@ -22,12 +25,21 @@ function App() {
               <Link to="/login">Login</Link>
             </li>
           </ul>
-        </nav>
+        </nav> */}
+        <NavBar />
         <hr />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          ></Route>
         </Routes>
       </div>
     </Router>
