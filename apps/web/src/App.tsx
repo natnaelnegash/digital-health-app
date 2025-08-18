@@ -6,6 +6,7 @@ import './App.css';
 import LoginPage from './pages/LoginPage';
 import NavBar from './components/NavBar';
 import ProtectedRoute from './components/ProtectedRoute';
+import NewAppointmentPage from './pages/NewAppointmentPage';
 
 const HomePage = () => <h1>Welcome to the Digital Health App!</h1>;
 // const DashboardPage = () => <h1>Your Appointments Dashboard</h1>;
@@ -14,19 +15,6 @@ function App() {
   return (
     <Router>
       <div>
-        {/* <nav>
-          <ul style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/register">Register</Link>
-            </li>
-            <li>
-              <Link to="/login">Login</Link>
-            </li>
-          </ul>
-        </nav> */}
         <NavBar />
         <hr />
         <Routes>
@@ -40,7 +28,15 @@ function App() {
                 <DashboardPage />
               </ProtectedRoute>
             }
-          ></Route>
+          />
+          <Route
+            path="new-appointment"
+            element={
+              <ProtectedRoute>
+                <NewAppointmentPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </div>
     </Router>

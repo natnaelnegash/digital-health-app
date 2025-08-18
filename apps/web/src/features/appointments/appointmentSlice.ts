@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
 import { getAppointments } from "../../api/appointmentApi";
 
 interface AppointmentState {
@@ -25,10 +25,36 @@ export const fetchAppointments = createAsyncThunk(
     }
 )
 
+// export const createAppointment = createAsyncThunk(
+//     'appointments/createAppointment',
+//     async(_, {regectWithValue}) => {
+//         try {
+//             const data = await createAppointment()
+//             return data
+//         } catch (error: any) {
+//             return regectWithValue(error.response.data.message || 'Failed to book an appointment ')
+//         }
+//     }
+// )
+
 const appointmentSlice = createSlice({
     name: 'appointment',
     initialState,
-    reducers: {},
+    reducers: {
+        appointmentStart(state) {
+            state.isLoading = true
+            state.error = null
+        },
+
+        appointmentSuccess(state) {
+            state.isLoading = false
+        },
+
+        appointmentFailure(state, action:PayloadAction<string>) {
+            state.isLoading = false
+            state.error = action.payload
+        }
+    },
     extraReducers(builder) {
         builder
             .addCase(fetchAppointments.pending, (state) => {
@@ -46,4 +72,5 @@ const appointmentSlice = createSlice({
     },
 })
 
+export const {appointmentStart, appointmentSuccess, appointmentFailure} = appointmentSlice.actions
 export default appointmentSlice.reducer

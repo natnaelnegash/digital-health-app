@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, type RootState } from '../app/store';
+import { type AppDispatch, type RootState } from '../app/store';
 import { fetchAppointments } from '../features/appointments/appointmentSlice';
 
 const DashboardPage = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { appointments, isLoading, error } = useSelector((state: RootState) => state.appointmemts);
+  const { appointments, isLoading, error } = useSelector((state: RootState) => state.appointments);
   const { user } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
@@ -43,7 +43,7 @@ const DashboardPage = () => {
 
   return (
     <div>
-      <h2>Your Appointments Dashboard</h2>
+      <h1>Your Appointments Dashboard</h1>
       {renderContent()}
     </div>
   );
