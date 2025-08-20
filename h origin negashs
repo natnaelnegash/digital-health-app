@@ -1,0 +1,8 @@
+[33m634dfe6[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mnegashs[m[33m, [m[1;31morigin/negash's[m[33m, [m[1;31morigin/HEAD[m[33m)[m created addded reducers in appointmentSlice created appointment booking page
+[33mbec088c[m created and configured axiosConfig file for token included requests created appointmentSlice for appointment states updated the DashboardPage
+[33m8925e8f[m Added style for login page Added state for the NavBar and logout feature in the authSlice Added a ProtectedRoute for unauthorized access of appointment dashboard
+[33md3db1cb[m Added Register page and functionality Added Login page and functionality
+[33m1dffcb0[m Merge pull request #1 from natnaelnegash/dev
+[33mf1c18df[m[33m ([m[1;31morigin/dev[m[33m, [m[1;32mdev[m[33m)[m Added appointments cancel functionality
+[33m595807c[m .
+[33med944a6[m init
