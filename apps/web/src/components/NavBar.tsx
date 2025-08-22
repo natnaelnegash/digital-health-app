@@ -20,6 +20,9 @@ const NavBar = () => {
         <li>
           <Link to="/">Home</Link>
         </li>
+        <li>
+          <Link to="/providers">Find Providers</Link>
+        </li>
         {token ? (
           <>
             <li>

@@ -1,6 +1,7 @@
 import express from 'express'
 import authRouter from './auth/auth.routes'
 import appointmentRouter from './appointments/appointments.routes'
+import userRouter from './users/user.routes'
 import cors from 'cors'
 
 const app = express()
@@ -15,6 +16,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', authRouter)
 app.use('/api/appointments', appointmentRouter)
+app.use('/api/users', userRouter)
 
 app.listen(port, () => {
     console.log(`🚀 API server listening on http://localhost:${port}`)

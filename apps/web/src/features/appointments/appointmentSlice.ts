@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
-import { getAppointments } from "../../api/appointmentApi";
+import { getAppointments, createAppointment as createAppointmentApi, cancelAppointment as cancelAppointmentApi } from "../../api/appointmentApi";
 
 interface AppointmentState {
     appointments: any[]
@@ -25,35 +25,48 @@ export const fetchAppointments = createAsyncThunk(
     }
 )
 
-// export const createAppointment = createAsyncThunk(
-//     'appointments/createAppointment',
-//     async(_, {regectWithValue}) => {
-//         try {
-//             const data = await createAppointment()
-//             return data
-//         } catch (error: any) {
-//             return regectWithValue(error.response.data.message || 'Failed to book an appointment ')
-//         }
-//     }
-// )
+export const createAppointment = createAsyncThunk(
+    'appointments/createAppointment',
+    async(appointmentData: {providerId: string, startTime: string, reason? : string}, {rejectWithValue}) => {
+        try {
+            const data = await createAppointmentApi(appointmentData)
+            return data
+        } catch (error: any) {
+            return rejectWithValue(error.response.data.message || 'Failed to book an appointment ')
+        }
+    }
+)
+
+export const cancelAppointment = createAsyncThunk(
+    'appointments/cancelAppointment',
+    async(appointmentId:string , {rejectWithValue}) => {
+        try {
+            const data = await cancelAppointmentApi(appointmentId)
+            return data
+        } catch (error: any) {
+            return rejectWithValue(error.response.data.message || 'Failed to cancel appointment ')
+        }
+    }
+)
+
 
 const appointmentSlice = createSlice({
     name: 'appointment',
     initialState,
     reducers: {
-        appointmentStart(state) {
-            state.isLoading = true
-            state.error = null
-        },
+        // appointmentStart(state) {
+        //     state.isLoading = true
+        //     state.error = null
+        // },
 
-        appointmentSuccess(state) {
-            state.isLoading = false
-        },
+        // appointmentSuccess(state) {
+        //     state.isLoading = false
+        // },
 
-        appointmentFailure(state, action:PayloadAction<string>) {
-            state.isLoading = false
-            state.error = action.payload
-        }
+        // appointmentFailure(state, action:PayloadAction<string>) {
+        //     state.isLoading = false
+        //     state.error = action.payload
+        // }
     },
     extraReducers(builder) {
         builder
@@ -69,8 +82,35 @@ const appointmentSlice = createSlice({
                 state.isLoading = false
                 state.error = action.payload as string
             })
+            .addCase(createAppointment.pending, (state) => {
+                state.isLoading = true
+                state.error = null
+            })
+            .addCase(createAppointment.fulfilled, (state, action) => {
+                state.isLoading = false
+                state.appointments.push(action.payload)
+            })
+            .addCase(createAppointment.rejected, (state, action) => {
+                state.isLoading = false
+                state.error = action.payload as string
+            })
+            .addCase(cancelAppointment.pending, (state) => {
+                state.isLoading = true
+                state.error = null
+            })
+            .addCase(cancelAppointment.fulfilled, (state, action) => {
+                state.isLoading = false
+                const index = state.appointments.findIndex((appt) => appt.id === action.payload.id)
+                if (index !== -1) {
+                    state.appointments[index] = action.payload
+                }
+            })
+            .addCase(cancelAppointment.rejected, (state, action) => {
+                state.isLoading = false
+                state.error = action.payload as string 
+            })
     },
 })
 
-export const {appointmentStart, appointmentSuccess, appointmentFailure} = appointmentSlice.actions
+// export const {appointmentStart, appointmentSuccess, appointmentFailure} = appointmentSlice.actions
 export default appointmentSlice.reducer

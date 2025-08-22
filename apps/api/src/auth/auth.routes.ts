@@ -7,5 +7,6 @@ const router = Router()
 router.post('/register', AuthController.register)
 router.post('/login', AuthController.login)
 router.get('/profile', authMiddleware, AuthController.getProfile)
+router.get('/users', authMiddleware, AuthController.getUsers)
 
 export default router

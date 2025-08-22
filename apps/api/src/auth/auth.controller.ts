@@ -66,3 +66,22 @@ export const getProfile = async (req: Request, res: Response) => {
         return res.status(500).json({ message: 'Internal server error.' });
     }
 }
+
+export const getUsers = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user?.userId
+        if (!userId) {
+            return res.status(401).json({message: 'Unauthorized'})
+        }
+
+        const user = await prisma.user.findMany()
+
+        if (!user) {
+            return res.status(404).json({message: 'No users found'})
+        }
+        
+        return res.status(201).json(user)
+    } catch (error) {
+        return res.status(500).json({ message: 'Internal server error.' });
+    }
+}

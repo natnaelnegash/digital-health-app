@@ -5,7 +5,12 @@ export const getAppointments = async () => {
     return response.data
 }
 
-export const createAppointment = async (appointmentData: any) => {
+export const createAppointment = async (appointmentData: {providerId: string; startTime: string; reason?: string }) => {
     const response = await apiClient.post('/appointments', appointmentData)
+    return response.data
+}
+
+export const cancelAppointment = async(appointmentId : string) => {
+    const response = await apiClient.patch(`/appointments/${appointmentId}/cancel`)
     return response.data
 }

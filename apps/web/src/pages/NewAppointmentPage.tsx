@@ -4,52 +4,91 @@ import { type AppDispatch, type RootState } from '../app/store';
 import Calendar from 'react-calendar';
 import './Sample.css';
 import 'react-calendar/dist/Calendar.css';
-import { createAppointment } from '../api/appointmentApi';
+import { createAppointment } from '../features/appointments/appointmentSlice';
 import { useNavigate } from 'react-router-dom';
-import {
-  appointmentFailure,
-  appointmentStart,
-  appointmentSuccess,
-} from '../features/appointments/appointmentSlice';
+import { useQueryParams } from '../hooks/useQueryParams';
 
-type ValuePiece = Date | null;
-type Value = ValuePiece | [ValuePiece, ValuePiece];
+// type ValuePiece = Date | null;
+// type Value = ValuePiece | [ValuePiece, ValuePiece];
 
 const NewAppointmentPage = () => {
-  const [newDate, setNewDate] = useState<Value>();
+  const queryParams = useQueryParams();
+  // const [newDate, setNewDate] = useState<Value>();
   const [formData, setFormData] = useState({
-    startDate: newDate,
-    provider: '',
+    startTime: '',
+    providerId: '',
     reason: '',
   });
-  const dispatch = useDispatch<AppDispatch>();
+
   const { isLoading, error } = useSelector((state: RootState) => state.appointments);
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   useEffect(() => {
-    setFormData({ ...formData, startDate: newDate });
-  }, [newDate]);
+    const providerIdFromParams = queryParams.get('providerId');
+    if (providerIdFromParams) {
+      setFormData((prevData) => ({ ...prevData, providerId: providerIdFromParams }));
+    }
+  }, [queryParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(appointmentStart());
-    try {
-      const data = await createAppointment(formData);
-      dispatch(appointmentSuccess());
-      navigate('/dashboard');
-    } catch (error: any) {
-      const errorMessage = error.response.data.message || 'Failed to book an appointment ';
-      appointmentFailure(errorMessage);
-    }
+    const appointmentData = {
+      ...formData,
+      startTime: new Date(formData.startTime).toISOString(),
+    };
+    dispatch(createAppointment(appointmentData))
+      .unwrap()
+      .then(() => {
+        navigate('/dashboard');
+      })
+      .catch((error) => {
+        console.log('Failed to create appointment ', error.message);
+      });
   };
 
   return (
     <div>
       <h1>Create new Appointment</h1>
-      <Calendar onChange={setNewDate} value={newDate} />
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="providerId">Provider ID</label>
+          <input
+            type="text"
+            id="providerId"
+            name="providerId"
+            value={formData.providerId}
+            onChange={handleChange}
+            required
+          />
+          {/* In a real app, this would be a dropdown from a search result */}
+        </div>
+        <div>
+          <label htmlFor="startTime">Appointment Time</label>
+          <input
+            type="datetime-local" // A handy input type for date and time
+            id="startTime"
+            name="startTime"
+            value={formData.startTime}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="reason">Reason for Visit</label>
+          <textarea id="reason" name="reason" value={formData.reason} onChange={handleChange} />
+        </div>
+
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? 'Booking...' : 'Book Appointment'}
+        </button>
+      </form>
+      {/* <Calendar onChange={handleChange} value={formData.startTime} /> */}
     </div>
   );
 };
