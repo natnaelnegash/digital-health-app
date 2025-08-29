@@ -1,5 +1,3 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -18,34 +16,114 @@ model User {
   role      Role     @default(PATIENT)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Add these two lines for the relationship
+  patient   Patient?
+  provider  Provider?
   appointmentsAsPatient  Appointment[] @relation("PatientAppointments")
   appointmentsAsProvider Appointment[] @relation("ProviderAppointments")
+  healthData    HealthData[]
+  fitbitToken   FitbitToken?
+  auditTrails   AuditTrail[]  @relation("PerformedBy")
 }
 
-// Add the new Appointment Model
 model Appointment {
   id        String            @id @default(cuid())
   startTime DateTime
   endTime   DateTime
   status    AppointmentStatus @default(SCHEDULED)
   reason    String?
-
-  patient    User   @relation("PatientAppointments", fields: [patientId], references: [id])
-  patientId  String
-  provider   User   @relation("ProviderAppointments", fields: [providerId], references: [id])
+  patient   User   @relation("PatientAppointments", fields: [patientId], references: [id])
+  patientId String
+  provider  User   @relation("ProviderAppointments", fields: [providerId], references: [id])
   providerId String
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // This ensures a patient can't have two appointments at the exact same time
   @@unique([patientId, startTime])
   @@unique([providerId, startTime])
 }
 
-// Add the new Enum for appointment status
+model Patient {
+  id            String          @id @default(cuid())
+  userId        String          @unique
+  user          User            @relation(fields: [userId], references: [id])
+  wearableToken String?
+  medicalHistory MedicalHistory[]
+  labResults    LabResult[]
+  prescriptions Prescription[]
+}
+
+model Provider {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model MedicalHistory {
+  id        String   @id @default(cuid())
+  patientId String
+  details   String
+  date      DateTime @default(now())
+  patient   Patient  @relation(fields: [patientId], references: [id])
+  audits    AuditTrail[] @relation("MedicalHistoryAudit")
+}
+
+model LabResult {
+  id        String   @id @default(cuid())
+  patientId String
+  type      String
+  results   Json
+  date      DateTime @default(now())
+  patient   Patient  @relation(fields: [patientId], references: [id])
+  audits    AuditTrail[] @relation("LabResultAudit")
+}
+
+model Prescription {
+  id        String   @id @default(cuid())
+  patientId String
+  medication String
+  dosage    String
+  date      DateTime @default(now())
+  patient   Patient  @relation(fields: [patientId], references: [id])
+  audits    AuditTrail[] @relation("PrescriptionAudit")
+}
+
+model HealthData {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String
+  value     Json
+  source    String?  // e.g., "Fitbit", "Dexcom"
+  date      DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FitbitToken {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id])
+  accessToken  String
+  refreshToken String
+  expiresAt    Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model AuditTrail {
+  id               String   @id @default(cuid())
+  action           String
+  performedById    String
+  performedBy      User     @relation("PerformedBy", fields: [performedById], references: [id])
+  patientId        String
+  timestamp        DateTime @default(now())
+  medicalHistoryId String?
+  labResultId      String?
+  prescriptionId   String?
+  medicalHistory   MedicalHistory? @relation("MedicalHistoryAudit", fields: [medicalHistoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  labResult        LabResult?      @relation("LabResultAudit", fields: [labResultId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  prescription     Prescription?   @relation("PrescriptionAudit", fields: [prescriptionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
 enum AppointmentStatus {
   SCHEDULED
   COMPLETED
