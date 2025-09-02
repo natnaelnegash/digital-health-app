@@ -9,19 +9,43 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model ClinicalNote {
+  id   String @id @default(cuid())
+  note String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  appointmentId String      @unique
+
+  patient   User   @relation("PatientNotes", fields: [patientId], references: [id])
+  patientId String
+
+  provider   User   @relation("ProviderNotes", fields: [providerId], references: [id])
+  providerId String
+}
+
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
+  id        String  @id @default(cuid())
+  email     String  @unique
   password  String
   firstname String?
   lastname  String?
-  role      Role     @default(PATIENT)
+  role      Role    @default(PATIENT)
+
+  speciality String?
+  bio        String? @db.Text
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Add these two lines for the relationship
   appointmentsAsPatient  Appointment[] @relation("PatientAppointments")
   appointmentsAsProvider Appointment[] @relation("ProviderAppointments")
+
+  notesAsPatient  ClinicalNote[] @relation("PatientNotes")
+  notesAsProvider ClinicalNote[] @relation("ProviderNotes")
 }
 
 // Add the new Appointment Model
@@ -37,8 +61,9 @@ model Appointment {
   provider   User   @relation("ProviderAppointments", fields: [providerId], references: [id])
   providerId String
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  ClinicalNote ClinicalNote?
 
   // This ensures a patient can't have two appointments at the exact same time
   @@unique([patientId, startTime])

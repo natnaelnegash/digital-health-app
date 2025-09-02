@@ -1,17 +1,44 @@
-import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
-import { getAppointments, createAppointment as createAppointmentApi, cancelAppointment as cancelAppointmentApi } from "../../api/appointmentApi";
+import { createSlice, createAsyncThunk, } from "@reduxjs/toolkit";
+import { getAppointments, createAppointment as createAppointmentApi, cancelAppointment as cancelAppointmentApi, getAppointmentById } from "../../api/appointmentApi";
+import { getNotes as getNotesApi, saveNotes as saveNotesApi } from "../../api/noteApi";
 
 interface AppointmentState {
     appointments: any[]
+    selectedAppointment: any | null
     isLoading: boolean
     error: string | null
 }
 
 const initialState: AppointmentState = {
     appointments: [],
+    selectedAppointment: null,
     isLoading: false,
     error: null
 }
+
+export const fetchAppointmentDetails = createAsyncThunk(
+    'appointments/fetchAppointmentDetails',
+    async(appointmentId: string, {rejectWithValue}) => {
+        try {
+            const [appointment, note] = await Promise.all([getAppointmentById(appointmentId), getNotesApi(appointmentId)])
+            return {...appointment, clinicalNote: note}
+        } catch (error: any) {
+            return error.message || 'Failed to fetch appointment details'
+        }
+    }
+)
+
+export const saveAppointmentNote = createAsyncThunk(
+    'appointments/saveAppointmentNote',
+    async({appointmentId, content}: {appointmentId: string, content: string}, {rejectWithValue}) => {
+        try {
+            const updatedNote = await saveNotesApi(appointmentId, content)
+            return updatedNote
+        } catch (error: any) {
+            return error.message || 'Failed to fetch appointment details'
+        }
+    }
+)
 
 export const fetchAppointments = createAsyncThunk(
     'appointments/fetchAppointments',
@@ -54,19 +81,9 @@ const appointmentSlice = createSlice({
     name: 'appointment',
     initialState,
     reducers: {
-        // appointmentStart(state) {
-        //     state.isLoading = true
-        //     state.error = null
-        // },
-
-        // appointmentSuccess(state) {
-        //     state.isLoading = false
-        // },
-
-        // appointmentFailure(state, action:PayloadAction<string>) {
-        //     state.isLoading = false
-        //     state.error = action.payload
-        // }
+        clearSelectedAppointment(state) {
+            state.selectedAppointment = null
+        }
     },
     extraReducers(builder) {
         builder
@@ -109,8 +126,34 @@ const appointmentSlice = createSlice({
                 state.isLoading = false
                 state.error = action.payload as string 
             })
+            .addCase(fetchAppointmentDetails.pending, (state) => {
+                state.isLoading = true
+                state.error = null
+            })
+            .addCase(fetchAppointmentDetails.fulfilled, (state, action) => {
+                state.isLoading = false
+                state.selectedAppointment = action.payload
+            })
+            .addCase(fetchAppointmentDetails.rejected, (state, action) => {
+                state.isLoading = true
+                state.error = action.payload as string
+            })
+            .addCase(saveAppointmentNote.pending, (state) => {
+                state.isLoading = true
+                state.error = null
+            })
+            .addCase(saveAppointmentNote.fulfilled, (state, action) => {
+                state.isLoading = false
+                if (state.selectedAppointment) {
+                    state.selectedAppointment.clinicalNote = action.payload
+                }
+            })
+            .addCase(saveAppointmentNote.rejected, (state, action) => {
+                state.isLoading = true
+                state.error = action.payload as string
+            })
     },
 })
 
-// export const {appointmentStart, appointmentSuccess, appointmentFailure} = appointmentSlice.actions
+export const {clearSelectedAppointment} = appointmentSlice.actions
 export default appointmentSlice.reducer

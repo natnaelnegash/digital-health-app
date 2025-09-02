@@ -15,7 +15,7 @@ const NavBar = () => {
   };
 
   return (
-    <nav>
+    <nav style={{ width: '100%', position: 'relative' }}>
       <ul style={{ display: 'flex', justifyContent: 'space-between' }}>
         <li>
           <Link to="/">Home</Link>
@@ -30,6 +30,9 @@ const NavBar = () => {
             </li>
             <li>
               <span>Welcome {user?.email}</span>
+            </li>
+            <li>
+              <Link to="/my-profile">Profile</Link>
             </li>
             <li>
               <button onClick={handleLogout}>Logout</button>

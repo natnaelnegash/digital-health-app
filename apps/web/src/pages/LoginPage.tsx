@@ -1,42 +1,47 @@
-import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppDispatch, RootState } from '../app/store';
-import { login } from '../api/authApi';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React from 'react';
+import { useDispatch } from 'react-redux';
+import type { AppDispatch } from '../app/store';
+import { login as loginApi } from '../api/authApi';
 import { authFailure, authStart, authSuccess } from '../features/auth/authSlice';
 import { jwtDecode } from 'jwt-decode';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './login.css';
+import toast from 'react-hot-toast';
+import { useForm } from 'react-hook-form';
+import { type LoginFormValues, loginSchema } from '../features/auth/authValidation';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const LoginPage = () => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { isLoading, error } = useSelector((state: RootState) => state.auth);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: LoginFormValues) => {
     dispatch(authStart());
     try {
-      const data = await login(formData);
-
-      const decodedUser: any = jwtDecode(data.token);
-      dispatch(authSuccess({ user: decodedUser, token: data.token }));
+      const response = await loginApi(data);
+      const decodedUser: any = jwtDecode(response.token);
+      dispatch(authSuccess({ user: decodedUser, token: response.token }));
+      toast.success(`Login successfull...Welcome ${decodedUser?.firstname}`);
       navigate('/dashboard');
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Failed to login';
-      dispatch(authFailure(errorMessage));
+      toast.error(error.response?.data?.message || 'Failed to login');
+      dispatch(authFailure(error.response?.data?.message));
     }
   };
+
   return (
     <div className="login-container">
       <div className="logo">
         <img src="" alt="" />
       </div>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <input
           placeholder="Enter email"
           style={{
@@ -53,11 +58,10 @@ const LoginPage = () => {
           }}
           type="email"
           id="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
+          {...register('email')}
           required
         />
+        {errors.email && <p style={{ color: 'red' }}>{errors.email?.message}</p>}
         <input
           placeholder="Enter Password"
           style={{
@@ -74,14 +78,13 @@ const LoginPage = () => {
           }}
           type="password"
           id="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
+          {...register('password')}
           required
         />
+        {errors.password && <p style={{ color: 'red' }}>{errors.password?.message}</p>}
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={isSubmitting}
           style={{
             width: '307px',
             height: '46.53px',
@@ -94,7 +97,7 @@ const LoginPage = () => {
           // onMouseEnter={() => setIsHovered(true)}
           // onMouseLeave={() => setIsHovered(false)}
         >
-          {isLoading ? 'Logging in...' : 'Login'}
+          {isSubmitting ? 'Logging in...' : 'Login'}
         </button>
         {/* <Link to="/login">Are You A Staff Member</Link> */}
       </form>

@@ -2,13 +2,11 @@ import { Request, Response } from "express";
 import * as AuthService from './auth.service'
 import { log } from "console";
 import prisma from "../db";
+import { validate } from "../middleware/validate";
 
 export const register = async (req: Request, res: Response) => {
     try {
         const {email, password, role} = req.body
-        if (!email || !password) {
-            return res.status(400).json({message: 'Email and password are required'})
-        }
         const newUser = await AuthService.registerUser({email, password, role})
         return res.status(201).json(newUser)
     } catch (error: any) {
@@ -23,9 +21,6 @@ export const register = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
     try {
         const {email, password} = req.body
-        if (!email || !password) {
-            return res.status(400).json({message: 'Email and password are required'})
-        }
         const result = await AuthService.loginUser({email, password})
         return res.status(200).json(result)
     } catch (error: any) {

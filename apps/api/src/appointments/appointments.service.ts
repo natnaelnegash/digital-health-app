@@ -98,3 +98,30 @@ export const getAppointmentsForUser = async (user: JwtPayload) => {
     const appointments = await prisma.appointment.findMany(query)
     return appointments
 }
+
+export const getAppointmentById = async (appointmentId: string, user: JwtPayload) => {
+    const {userId} = user
+
+    const appointment = await prisma.appointment.findUnique({where: {id: appointmentId}, include: {
+        patient: {
+            select: {id: true, firstname: true, lastname: true, email: true}
+        },
+        provider: {
+            select: {id: true, firstname: true, lastname: true, email: true}
+        },
+    }})
+
+    if(!appointment) {
+        throw new Error('Not Found: Appointment doesnt exist')
+    }
+
+    const isPatient = user.role === 'PATIENT' && appointment.patientId === user.userId;
+    const isProvider = user.role === 'PROVIDER' && appointment.providerId === user.userId;
+    const isAdmin = user.role === 'ADMIN';
+
+    if (!isPatient && !isProvider && !isAdmin) {
+        throw new Error('Forbidden: You do not have permission to view this appointment.');
+    }
+
+    return appointment;
+}

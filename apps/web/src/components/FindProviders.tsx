@@ -35,8 +35,8 @@ const FindProviders = () => {
               </h3>
               <h4>Email: {prov.email || ''}</h4>
 
-              <Link to={`/book-appointment?providerId=${prov.id}`}>
-                <button>Book appointment</button>
+              <Link to={`/provider/${prov.id}`}>
+                <button>View Profile</button>
               </Link>
             </div>
           ))}

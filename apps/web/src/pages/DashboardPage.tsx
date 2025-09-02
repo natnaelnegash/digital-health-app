@@ -4,6 +4,7 @@ import { type AppDispatch, type RootState } from '../app/store';
 import { fetchAppointments, cancelAppointment } from '../features/appointments/appointmentSlice';
 import { Link } from 'react-router-dom';
 import './NewAppointment.css';
+import toast from 'react-hot-toast';
 
 const DashboardPage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -12,12 +13,16 @@ const DashboardPage = () => {
 
   const handleCancelAppointment = (appointmentId: string) => {
     if (window.confirm('Are you sure you want to cancel this appointment?')) {
-      dispatch(cancelAppointment(appointmentId));
+      dispatch(cancelAppointment(appointmentId))
+        .unwrap()
+        .then(() => toast.success('Appointment cancelled.'))
+        .catch((error) => toast.error(`Error: ${error}`));
     }
   };
 
   useEffect(() => {
     dispatch(fetchAppointments());
+    console.log(appointments);
   }, [dispatch]);
 
   const renderContent = () => {
@@ -42,40 +47,19 @@ const DashboardPage = () => {
       (appt) => appt.status !== 'SCHEDULED' || appt.startTime < now.toISOString(),
     );
 
+    const appointmentContent = (appt) => (
+      <>
+        <strong>{new Date(appt.startTime).toLocaleString()}</strong> - {appt.reason}
+        <br />
+        {user?.role === 'PROVIDER'
+          ? `With Patient: ${appt?.patient?.firstName || ''} ${appt?.patient?.lastName || ''}`
+          : // Correcting a potential bug: The backend might not send firstName/lastName, so we check.
+            `With Provider: Dr. ${appt?.provider?.firstName || ''} ${appt?.provider?.lastName || ''}`}
+        {/* The Cancel Button */}
+      </>
+    );
+
     return (
-      // <>
-      //   <ul>
-      //     {appointments.map((appt) => (
-      //       <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-      //         <li key={appt.id}>
-      //           <strong>{new Date(appt.startTime).toLocaleString()}</strong> - {appt.reason} <br />{' '}
-      //           {user?.role === 'PROVIDER'
-      //             ? `With Patient: ${appt.patient.firstname} ${appt.patient.lastname}`
-      //             : `With Provider: ${appt.provider.firstname} ${appt.provider.lastname}`}
-      //         </li>
-      //         <span style={{ color: appt.status == 'CANCELLED' ? 'red' : 'green' }}>
-      //           {appt.status}
-      //         </span>
-      //         {appt.status !== 'CANCELLED' ? (
-      //           <span>
-      //             <button
-      //               onClick={() => handleCancelAppointment(appt.id)}
-      //               style={{ backgroundColor: 'red', color: 'white' }}
-      //             >
-      //               Cancel
-      //             </button>
-      //           </span>
-      //         ) : (
-      //           <span>
-      //             <button onClick={() => {}} style={{ backgroundColor: 'green', color: 'white' }}>
-      //               Reshedule
-      //             </button>
-      //           </span>
-      //         )}
-      //       </div>
-      //     ))}
-      //   </ul>
-      // </>
       <div
         className="appointment-container"
         style={{ display: 'flex', justifyContent: 'space-between' }}
@@ -89,13 +73,9 @@ const DashboardPage = () => {
                   key={appt.id}
                   style={{ marginBottom: '1rem', border: '1px solid #ccc', padding: '10px' }}
                 >
-                  <strong>{new Date(appt.startTime).toLocaleString()}</strong> - {appt.reason}
-                  <br />
-                  {user?.role === 'PROVIDER'
-                    ? `With Patient: ${appt.patient.firstName || ''} ${appt.patient.lastName || ''}`
-                    : // Correcting a potential bug: The backend might not send firstName/lastName, so we check.
-                      `With Provider: Dr. ${appt.provider.firstName || ''} ${appt.provider.lastName || ''}`}
-                  {/* The Cancel Button */}
+                  <Link to={`/appointments/${appt.id}`} style={{ color: 'black' }}>
+                    {appointmentContent(appt)}
+                  </Link>
                   <button
                     onClick={() => handleCancelAppointment(appt.id)}
                     style={{
@@ -124,8 +104,10 @@ const DashboardPage = () => {
             <ul>
               {pastOrCancelledAppointments.map((appt) => (
                 <li key={appt.id} style={{ color: '#666' }}>
-                  <strong>{new Date(appt.startTime).toLocaleString()}</strong> - Status:{' '}
-                  {appt.status === 'SCHEDULED' ? 'MISSED' : 'SCHEDULED'}
+                  <Link to={`/appointments/${appt.id}`} style={{ color: 'black' }}>
+                    {appointmentContent(appt)}
+                    {appt.status === 'SCHEDULED' ? 'MISSED' : 'SCHEDULED'}
+                  </Link>
                 </li>
               ))}
             </ul>

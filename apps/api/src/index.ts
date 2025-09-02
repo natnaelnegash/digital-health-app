@@ -2,6 +2,7 @@ import express from 'express'
 import authRouter from './auth/auth.routes'
 import appointmentRouter from './appointments/appointments.routes'
 import userRouter from './users/user.routes'
+import noteRouter from './notes/notes.routes'
 import cors from 'cors'
 
 const app = express()
@@ -14,8 +15,11 @@ app.get('/api/health', (req, res) => {
     res.json({status: 'ok', message: 'API is healthy'})
 })
 
-app.use('/api/auth', authRouter)
+
 app.use('/api/appointments', appointmentRouter)
+appointmentRouter.use('/:appointmentId/note', noteRouter);
+
+app.use('/api/auth', authRouter)
 app.use('/api/users', userRouter)
 
 app.listen(port, () => {

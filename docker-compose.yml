@@ -11,6 +11,24 @@ services:
       - "5432:5432" # Maps the port from the container to your local machine
     volumes:
       - postgres_data:/var/lib/postgresql/data # Persists database data
+  minio:
+    image: minio/minio:latest
+    container_name: digital-health-minio
+    environment:
+      # These are the login credentials for the MinIO console
+      MINIO_ROOT_USER: user
+      MINIO_ROOT_PASSWORD: password
+    # This command starts the MinIO server and creates a web console
+    command: server /data --console-address ":9001"
+    ports:
+      # The API port (what our backend will talk to)
+      - "9000:9000"
+      # The web console port (what you will use in your browser)
+      - "9001:9001"
+    volumes:
+      - minio_data:/data # Persists the uploaded file data
 
 volumes:
   postgres_data:
+  minio_data: # Define the new volume for MinIO
+

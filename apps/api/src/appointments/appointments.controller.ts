@@ -2,6 +2,24 @@ import { Request, Response } from "express";
 import * as AppointmentService from './appointments.service'
 import prisma from "../db";
 
+export const getById = async (req: Request, res: Response) => {
+    try {
+    const { id } = req.params; // Get ID from URL parameter
+    const user = req.user!; // We know user exists because of authMiddleware
+
+    const appointment = await AppointmentService.getAppointmentById(id, user);
+    return res.status(200).json(appointment);
+  } catch (error: any) {
+    if (error.message.startsWith('Not Found')) {
+      return res.status(404).json({ message: error.message });
+    }
+    if (error.message.startsWith('Forbidden')) {
+      return res.status(403).json({ message: error.message });
+    }
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
 export const cancelAppointment = async (req: Request, res: Response) => {
     try {
         const {id} = req.params

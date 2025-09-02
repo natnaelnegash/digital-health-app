@@ -38,6 +38,8 @@ export const loginUser = async (loginData: Pick<User, 'email' | 'password'>) => 
     const token = jwt.sign(
         {
             userId: user.id,
+            firstname: user.firstname,
+            lastname: user.lastname,
             email: user.email,
             role: user.role
         },

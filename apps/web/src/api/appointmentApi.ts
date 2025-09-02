@@ -5,6 +5,11 @@ export const getAppointments = async () => {
     return response.data
 }
 
+export const getAppointmentById = async (appointmentId: string) => {
+    const response = await apiClient.get(`/appointments/${appointmentId}`)
+    return response.data
+}
+
 export const createAppointment = async (appointmentData: {providerId: string; startTime: string; reason?: string }) => {
     const response = await apiClient.post('/appointments', appointmentData)
     return response.data

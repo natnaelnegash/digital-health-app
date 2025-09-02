@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { type AppDispatch, type RootState } from '../app/store';
-import Calendar from 'react-calendar';
 import './Sample.css';
 import 'react-calendar/dist/Calendar.css';
 import { createAppointment } from '../features/appointments/appointmentSlice';
 import { useNavigate } from 'react-router-dom';
 import { useQueryParams } from '../hooks/useQueryParams';
+import toast from 'react-hot-toast';
 
 // type ValuePiece = Date | null;
 // type Value = ValuePiece | [ValuePiece, ValuePiece];
@@ -43,9 +43,11 @@ const NewAppointmentPage = () => {
     dispatch(createAppointment(appointmentData))
       .unwrap()
       .then(() => {
+        toast.success('Appointment booked successfully!');
         navigate('/dashboard');
       })
       .catch((error) => {
+        toast.error(`Booking failed: ${error}`);
         console.log('Failed to create appointment ', error.message);
       });
   };

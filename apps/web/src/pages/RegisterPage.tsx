@@ -1,61 +1,46 @@
 import React, { useState } from 'react';
-import { register } from '../api/authApi';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { register as registerApi } from '../api/authApi';
+import { registerSchema, type RegisterFormValues } from '../features/auth/authValidation';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const RegisterPage = () => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormValues>({ resolver: zodResolver(registerSchema) });
+  const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(null);
-
+  const onSubmit = async (data: RegisterFormValues) => {
     try {
-      const data = await register(formData);
-      setSuccess('Registration was successful. Please login');
-      console.log(`Registered User: ${data}`);
+      await registerApi(data);
+      toast.success('Registration successfull...Please login');
+      navigate('/login');
     } catch (error: any) {
-      console.log(error);
-      setError(error.response?.data?.message || 'An error has occurred');
+      toast.error(error.response?.data?.message || 'Failed to register');
     }
   };
 
   return (
     <div>
       <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div>
           <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
+          <input type="email" id="email" {...register('email')} required />
         </div>
+        {errors.email && <p style={{ color: 'red' }}>{errors.email.message}</p>}
         <div>
           <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
+          <input type="password" id="password" {...register('password')} required />
+          {errors.password && <p style={{ color: 'red' }}>{errors.password.message}</p>}
         </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        {success && <p style={{ color: 'green' }}>{success}</p>}
-        <button type="submit">Register</button>
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Registering' : 'Register'}
+        </button>
       </form>
     </div>
   );
