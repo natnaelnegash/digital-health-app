@@ -1,40 +1,26 @@
 const jwt = require('jsonwebtoken');
-const { PrismaClient } = require('@prisma/client');
 
-const prisma = new PrismaClient();
-
-module.exports = async (req, res, next) => {
+const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
+  console.log('Auth middleware: Received headers:', req.headers);
+  console.log('Auth middleware: JWT_SECRET:', process.env.JWT_SECRET || 'Undefined');
+
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Unauthorized: No token provided' });
+    console.log('Auth middleware: No token provided');
+    return res.status(401).json({ error: 'No token provided' });
   }
 
   const token = authHeader.split(' ')[1];
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.id },
-      include: {
-        patient: { select: { id: true } },
-        provider: { select: { id: true } },
-      },
-    });
-
-    if (!user) {
-      return res.status(401).json({ error: 'Unauthorized: User not found' });
-    }
-
-    req.user = {
-      id: user.id,
-      role: user.role,
-      patientId: user.patient?.id || null,
-      providerId: user.provider?.id || null,
-    };
-
+    console.log('Auth middleware: Token verified, decoded:', decoded);
+    req.user = decoded;
     next();
   } catch (error) {
-    console.error('Auth error:', error);
-    return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    console.error('Auth middleware: Token verification failed:', error.message);
+    return res.status(401).json({ error: 'Invalid token' });
   }
 };
+
+module.exports = authMiddleware;

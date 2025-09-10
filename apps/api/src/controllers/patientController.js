@@ -6,6 +6,11 @@ const path = require('path');
 const prisma = new PrismaClient();
 
 exports.getPatientRecords = async (req, res) => {
+  if (!req.user) {
+    console.error('No user in request - authentication failed or middleware not applied');
+    return res.status(401).json({ error: 'Unauthorized: No user authenticated' });
+  }
+  
   const userId = req.user.id;
   try {
     const queryUserId = req.body.userId || userId;
@@ -35,6 +40,11 @@ exports.getPatientRecords = async (req, res) => {
 };
 
 exports.updatePatientRecords = async (req, res) => {
+  if (!req.user) {
+    console.error('No user in request - authentication failed or middleware not applied');
+    return res.status(401).json({ error: 'Unauthorized: No user authenticated' });
+  }
+  
   const userId = req.user.id;
   const { patientId, medicalHistory, labResults, prescriptions } = req.body;
   try {
@@ -122,6 +132,11 @@ exports.updatePatientRecords = async (req, res) => {
 };
 
 exports.importWearableData = async (req, res) => {
+  if (!req.user) {
+    console.error('No user in request - authentication failed or middleware not applied');
+    return res.status(401).json({ error: 'Unauthorized: No user authenticated' });
+  }
+  
   const userId = req.user.id;
   const { patientId, type, data, date, source } = req.body;
   try {
@@ -163,6 +178,11 @@ exports.importWearableData = async (req, res) => {
 };
 
 exports.exportRecordsToPDF = async (req, res) => {
+  if (!req.user) {
+    console.error('No user in request - authentication failed or middleware not applied');
+    return res.status(401).json({ error: 'Unauthorized: No user authenticated' });
+  }
+  
   const userId = req.user.id;
   try {
     const patient = await prisma.patient.findUnique({
