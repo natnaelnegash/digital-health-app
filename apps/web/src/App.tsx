@@ -11,6 +11,10 @@ import ProfilePage from './pages/ProfilePage';
 import AppointmentDetailsPage from './pages/AppointmentDetailsPage';
 import { Toaster } from 'react-hot-toast';
 import ProviderDetailsPage from './pages/ProviderDetailsPage';
+import MyPatientsPage from './pages/MyPatientsPage';
+import MyPatientDetails from './pages/MyPatientDetails';
+import Layout from './components/Layout';
+import NotFoundPage from './pages/NotFoundPage';
 
 const HomePage = () => <h1>Welcome to the Digital Health App!</h1>;
 // const DashboardPage = () => <h1>Your Appointments Dashboard</h1>;
@@ -25,39 +29,56 @@ function App() {
         }}
       />
       <div style={{ width: '90vw' }}>
-        <NavBar />
-        <hr />
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/providers" element={<FindProviders />} />
-          <Route path="/provider/:id" element={<ProviderDetailsPage />} />
-          <Route path="/appointments/:id" element={<AppointmentDetailsPage />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="book-appointment"
-            element={
-              <ProtectedRoute>
-                <NewAppointmentPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/my-profile"
-            element={
-              <ProtectedRoute>
-                <ProfilePage />
-              </ProtectedRoute>
-            }
-          />
+          <Route element={<Layout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/providers" element={<FindProviders />} />
+            <Route path="/provider/:id" element={<ProviderDetailsPage />} />
+            <Route path="/appointments/:id" element={<AppointmentDetailsPage />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="book-appointment"
+              element={
+                <ProtectedRoute>
+                  <NewAppointmentPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-patients"
+              element={
+                <ProtectedRoute>
+                  <MyPatientsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/patient/:id"
+              element={
+                <ProtectedRoute>
+                  <MyPatientDetails />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
         </Routes>
       </div>
     </Router>

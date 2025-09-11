@@ -9,6 +9,37 @@ interface UserUpdateData {
     bio?: string
 }
 
+interface ProviderFilters {
+  search?: string;
+  specialty?: string;
+}
+
+export const getMyPatients = async (providerId: string) => {
+    const appointments = await prisma.appointment.findMany({
+        where: {
+            providerId: providerId
+        },
+        include: {
+            patient: {
+                select: {
+                    id: true,
+                    email: true,
+                    firstname: true,
+                    lastname: true
+                }
+            }
+        }
+    })
+    const patientMap = new Map()
+    appointments.forEach((appt) => {
+        if (!patientMap.has(appt.patient.id)) {
+            patientMap.set(appt.patient.id, appt.patient)
+        }
+    })
+    const uniquePatients = Array.from(patientMap.values())
+    return uniquePatients
+}
+
 export const getProviderById = async (providerId: string) => {
     const provider = await prisma.user.findUnique({where: {
         id: providerId, role: Role.PROVIDER
@@ -26,14 +57,30 @@ export const getProviderById = async (providerId: string) => {
     return provider
 }
 
-export const getAllProviders = async (user: JwtPayload) => {
-    const providers = await prisma.user.findMany({where: {
-        role : Role.PROVIDER
-    }, select:{
+export const getAllProviders = async (user: JwtPayload, filters: ProviderFilters) => {
+    const {search, specialty} = filters
+    const whereClause: any = {
+        role: Role.PROVIDER
+    }
+    if (search) {
+        whereClause.OR = [
+        { firstname: { contains: search, mode: 'insensitive' } },
+        { lastname: { contains: search, mode: 'insensitive' } },
+        ];
+    }
+    if(specialty) {
+        whereClause.speciality = specialty
+    }
+
+    const providers = await prisma.user.findMany({where: whereClause, select:{
         id: true,
         firstname: true,
         lastname:true,
-        email: true
+        email: true,
+        speciality: true,
+        bio: true
+    }, orderBy: {
+        lastname: 'asc'
     }})
 
     if (!providers) {

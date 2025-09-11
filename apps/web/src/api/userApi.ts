@@ -1,12 +1,22 @@
 import apiClient from "./axiosConfig"
 
+interface ProviderFilters {
+  search?: string;
+  specialty?: string;
+}
+
+export const getMyPatients = async () => {
+    const response = await apiClient('/users/providers/my-patients')
+    return response.data
+}
+
 export const fetchProviderById = async (providerId: string) => {
     const response = await apiClient(`/users/provider/${providerId}`)
     return response.data
 }
 
-export const fetchProvidersApi = async () => {
-    const response = await apiClient('/users/providers')
+export const fetchProvidersApi = async (filters: ProviderFilters) => {
+    const response = await apiClient('/users/providers', {params: filters})
     return response.data
 }
 

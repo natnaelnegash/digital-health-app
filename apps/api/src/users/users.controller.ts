@@ -2,6 +2,33 @@ import { Request , Response } from "express";
 import * as UsersService  from "./users.service";
 import { Role } from "@prisma/client";
 
+export const getMyUniquePatientController = async (req: Request, res: Response) => {
+    const {userId, role}  = req.user!
+    const patientId = req.params.id
+    try {
+        const [myPatient, appointments] = await UsersService.getMyUniquePatient(patientId, userId)
+        return res.status(203).json({patient: myPatient, appointments: appointments})
+    } catch (error: any) {
+        return res.status(500).json({message: error.message})
+    }
+}
+
+export const getMyPatientsController = async (req: Request, res: Response) => {
+    try {
+        const {userId, role}= req.user!
+
+    if (role !== Role.PROVIDER) {
+        return res.status(400).json({message: 'Forbidden: Only providers can access this resource'})
+    }
+    const patients = await UsersService.getMyPatients(userId)
+    
+    return res.status(203).json(patients)
+    } catch (error: any) {
+        return res.status(500).json({message: 'Internal server error'})
+    }
+}
+
+
 export const getProviderById = async (req: Request, res: Response) => {
     const providerId = req.params.id
     try {
@@ -19,7 +46,13 @@ export const getAllProviders = async (req : Request, res: Response) => {
         return res.status(401).json({message: 'Unauthorized'})
     }
     try {
-        const providers = await UsersService.getAllProviders(user)
+        const {search, specialty} = req.query
+
+        const filters = {
+            search: search as string | undefined,
+            specialty: specialty as string | undefined
+        }
+        const providers = await UsersService.getAllProviders(user, filters)
         return res.status(201).json(providers)
     } catch (error: any) {
         if(error.message.includes('No providers found')) {

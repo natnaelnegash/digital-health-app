@@ -8,6 +8,11 @@ interface UserState {
     error:string | null
 }
 
+interface ProviderFilters {
+    search?: string
+    specialty?: string
+}
+
 const initialState : UserState = {
     patients : [],
     providers : [],
@@ -17,9 +22,9 @@ const initialState : UserState = {
 
 export const fetchProviders = createAsyncThunk (
     'users/fetchUsers',
-    async(_,{rejectWithValue}) => {
+    async(filters: ProviderFilters,{rejectWithValue}) => {
         try {
-            const data = await fetchProvidersApi()
+            const data = await fetchProvidersApi(filters)
             return data
         } catch (error:any) {
             return rejectWithValue(error.response.data.message || 'Failed to fetch users')

@@ -5,6 +5,7 @@ import type { AppDispatch, RootState } from '../app/store';
 import { fetchMyProfile } from '../api/userApi';
 import { jwtDecode } from 'jwt-decode';
 import { authSuccess, logout } from '../features/auth/authSlice';
+import { Loader2 } from 'lucide-react';
 
 interface AuthInitializerProps {
   children: React.ReactNode;
@@ -34,10 +35,9 @@ const AuthInitializer: React.FC<AuthInitializerProps> = ({ children }) => {
 
   if (isInitializing) {
     return (
-      <div
-        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}
-      >
-        Loading Application
+      <div>
+        <Loader2 className="h-30 w-30 animate-spin text-gray-500" />
+        <h2 className="font-bold">Loading Application</h2>
       </div>
     );
   }
