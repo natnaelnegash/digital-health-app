@@ -4,19 +4,23 @@ const helmet = require("helmet")
 const rateLimit = require("express-rate-limit")
 require("dotenv").config()
 
+// Import routes
 const authRoutes = require("./routes/auth")
 const adminRoutes = require("./routes/admin")
+const userRoutes = require("./routes/users") // new users route
 
 const app = express()
 const PORT = process.env.PORT || 3000
 
 // Security middleware
 app.use(helmet())
+
+// CORS middleware (allow frontend on port 5173)
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
     credentials: true,
-  }),
+  })
 )
 
 // Rate limiting
@@ -48,6 +52,15 @@ app.get("/health", (req, res) => {
 // API routes
 app.use("/api/auth", authRoutes)
 app.use("/api/admin", adminRoutes)
+app.use("/api/users", userRoutes) // <-- added user routes
+
+// Example: add future routes for reports, appointments, system configurations
+// const reportRoutes = require("./routes/reports")
+// app.use("/api/reports", reportRoutes)
+// const appointmentRoutes = require("./routes/appointments")
+// app.use("/api/appointments", appointmentRoutes)
+// const configRoutes = require("./routes/configs")
+// app.use("/api/configs", configRoutes)
 
 // 404 handler
 app.use("*", (req, res) => {
@@ -69,20 +82,11 @@ app.use((error, req, res, next) => {
 })
 
 // Start server
-const startServer = async () => {
-  try {
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`)
-      console.log(`📊 Environment: ${process.env.NODE_ENV || "development"}`)
-      console.log(`🔗 Health check: http://localhost:${PORT}/health`)
-      console.log(`🐳 Docker ready!`)
-    })
-  } catch (error) {
-    console.error("Failed to start server:", error)
-    process.exit(1)
-  }
-}
-
-startServer()
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`)
+  console.log(`📊 Environment: ${process.env.NODE_ENV || "development"}`)
+  console.log(`🔗 Health check: http://localhost:${PORT}/health`)
+  console.log(`🐳 Docker ready!`)
+})
 
 module.exports = app
