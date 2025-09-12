@@ -1,4 +1,4 @@
-# Digital Health System - Administrative Backend with Prisma & Docker
+# Digital Health System - Administrative Backend with Prisma
 
 A comprehensive Node.js backend API using **Prisma ORM** and **Docker** for the Digital Health Appointment and Records System, focusing on administrative functions.
 
@@ -306,3 +306,4 @@ For issues or questions:
 3. Ensure all services are healthy: \`docker-compose ps\`
 4. Review the SRS document for requirements
 \`\`\`
+
