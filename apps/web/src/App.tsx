@@ -21,67 +21,69 @@ const HomePage = () => <h1>Welcome to the Digital Health App!</h1>;
 
 function App() {
   return (
-    <Router>
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 3000,
-        }}
-      />
-      <div style={{ width: '90vw' }}>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/providers" element={<FindProviders />} />
-            <Route path="/provider/:id" element={<ProviderDetailsPage />} />
-            <Route path="/appointments/:id" element={<AppointmentDetailsPage />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <DashboardPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="book-appointment"
-              element={
-                <ProtectedRoute>
-                  <NewAppointmentPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/my-profile"
-              element={
-                <ProtectedRoute>
-                  <ProfilePage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/my-patients"
-              element={
-                <ProtectedRoute>
-                  <MyPatientsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/patient/:id"
-              element={
-                <ProtectedRoute>
-                  <MyPatientDetails />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="*" element={<NotFoundPage />} />
-          </Route>
-        </Routes>
-      </div>
-    </Router>
+    <div style={{ width: '80vw' }}>
+      <Router>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 3000,
+          }}
+        />
+        <div>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/providers" element={<FindProviders />} />
+              <Route path="/provider/:id" element={<ProviderDetailsPage />} />
+              <Route path="/appointments/:id" element={<AppointmentDetailsPage />} />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <DashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="book-appointment"
+                element={
+                  <ProtectedRoute>
+                    <NewAppointmentPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/my-profile"
+                element={
+                  <ProtectedRoute>
+                    <ProfilePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/my-patients"
+                element={
+                  <ProtectedRoute>
+                    <MyPatientsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/patient/:id"
+                element={
+                  <ProtectedRoute>
+                    <MyPatientDetails />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<NotFoundPage />} />
+            </Route>
+          </Routes>
+        </div>
+      </Router>
+    </div>
   );
 }
 

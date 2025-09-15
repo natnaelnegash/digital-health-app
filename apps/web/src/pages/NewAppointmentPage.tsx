@@ -1,3 +1,7 @@
+import { Calendar } from '@/components/ui/calendar';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { type AppDispatch, type RootState } from '../app/store';
@@ -7,6 +11,8 @@ import { createAppointment } from '../features/appointments/appointmentSlice';
 import { useNavigate } from 'react-router-dom';
 import { useQueryParams } from '../hooks/useQueryParams';
 import toast from 'react-hot-toast';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 
 // type ValuePiece = Date | null;
 // type Value = ValuePiece | [ValuePiece, ValuePiece];
@@ -19,6 +25,9 @@ const NewAppointmentPage = () => {
     providerId: '',
     reason: '',
   });
+  const now = new Date();
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [time, setTime] = useState<any>(now.toLocaleTimeString());
 
   const { isLoading, error } = useSelector((state: RootState) => state.appointments);
   const dispatch = useDispatch<AppDispatch>();
@@ -26,6 +35,17 @@ const NewAppointmentPage = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  useEffect(() => {
+    if (date) {
+      setFormData({ ...formData, startTime: date.toString() });
+    }
+    // if (time) {
+    //   set;
+    // }
+    console.log(formData.startTime);
+    console.log(time);
+  }, [date]);
 
   useEffect(() => {
     const providerIdFromParams = queryParams.get('providerId');
@@ -53,12 +73,13 @@ const NewAppointmentPage = () => {
   };
 
   return (
-    <div>
+    <div className="items-center justify-center flex flex-col">
       <h1>Create new Appointment</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="providerId">Provider ID</label>
-          <input
+      <form onSubmit={handleSubmit} className="w-3/4 gap-4 flex flex-col ">
+        <div className="flex flex-col gap-4">
+          <Label htmlFor="providerId">Provider ID</Label>
+          <Input
+            className="w-1/3"
             type="text"
             id="providerId"
             name="providerId"
@@ -68,27 +89,55 @@ const NewAppointmentPage = () => {
           />
           {/* In a real app, this would be a dropdown from a search result */}
         </div>
-        <div>
-          <label htmlFor="startTime">Appointment Time</label>
-          <input
+        <div className="flex justify-between ">
+          <div className="flex gap-5">
+            <div className=" flex flex-col gap-4">
+              <Label htmlFor="startTime">Date</Label>
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={setDate}
+                className="rounded-lg border-3 "
+                disabled={(date) => date < new Date()}
+                required
+              />
+              {/* <input
             type="datetime-local" // A handy input type for date and time
             id="startTime"
             name="startTime"
             value={formData.startTime}
             onChange={handleChange}
             required
-          />
-        </div>
-        <div>
-          <label htmlFor="reason">Reason for Visit</label>
-          <textarea id="reason" name="reason" value={formData.reason} onChange={handleChange} />
+          /> */}
+            </div>
+            <div className=" flex flex-col gap-4">
+              <Label htmlFor="startTime">Time</Label>
+              <Input
+                type="time"
+                id="time-picker"
+                step="1"
+                defaultValue="10:30:00"
+                className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+              />
+            </div>
+          </div>
+          <div className="flex flex-col gap-4">
+            <Label htmlFor="reason">Reason for Visit</Label>
+            <Textarea
+              className="w-[300px] border-3"
+              id="reason"
+              name="reason"
+              value={formData.reason}
+              onChange={handleChange}
+            />
+            {/* <textarea id="reason" name="reason" value={formData.reason} onChange={handleChange} /> */}
+          </div>
         </div>
 
         {error && <p style={{ color: 'red' }}>{error}</p>}
-
-        <button type="submit" disabled={isLoading}>
+        <Button type="submit" className="w-[300px] self-center" disabled={isLoading}>
           {isLoading ? 'Booking...' : 'Book Appointment'}
-        </button>
+        </Button>
       </form>
       {/* <Calendar onChange={handleChange} value={formData.startTime} /> */}
     </div>
