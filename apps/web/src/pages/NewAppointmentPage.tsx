@@ -43,6 +43,7 @@ const NewAppointmentPage = () => {
     // if (time) {
     //   set;
     // }
+
     console.log(formData.startTime);
     console.log(time);
   }, [date]);
