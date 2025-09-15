@@ -14,8 +14,7 @@ const DashboardPage = () => {
 
   const renderContent = () => {
     if (isLoading) {
-      // return <p>Loading appointments please wait...</p>;
-      return <h1>Patient Dashboard</h1>;
+      return <h1>Admin Dashboard</h1>;
     }
 
     if (error) {

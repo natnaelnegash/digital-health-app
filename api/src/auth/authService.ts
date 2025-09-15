@@ -3,8 +3,8 @@ import bcrypt from 'bcryptjs'
 import jwt from "jsonwebtoken";
 import {User} from '@prisma/client'
 
-export const registerUser = async (userData: Pick<User, 'email' | 'password' | 'firstname' | 'lastname'>) => {
-    const {email, password, firstname, lastname} = userData
+export const registerUser = async (userData: Pick<User, 'email' | 'password' | 'firstname' | 'lastname' | 'role'>) => {
+    const {email, password, firstname, lastname, role} = userData
     const existingUser = await prisma.user.findUnique({where: {email}})
     if (existingUser) {
         throw new Error('User with this email already exists.')
@@ -17,7 +17,8 @@ export const registerUser = async (userData: Pick<User, 'email' | 'password' | '
             email, 
             password: hashedPassword,
             firstname,
-            lastname
+            lastname,
+            role
         }
     })
 
@@ -32,7 +33,8 @@ export const registerUser = async (userData: Pick<User, 'email' | 'password' | '
         process.env.JWT_SECRET!,
         {expiresIn: '1d'}
     )
-    return {token}
+    const userDetail = {email: newUser.email, role: newUser.role}
+    return {userDetail, token}
     // return userWithoutPassword
 }
 
@@ -58,5 +60,6 @@ export const loginUser = async (loginData: Pick<User, 'email' | 'password'>) => 
         process.env.JWT_SECRET!,
         {expiresIn: '1d'}
     )
-    return {token}
+    const userDetail = {email: user.email, role: user.role}
+    return {userDetail, token}
 }

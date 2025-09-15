@@ -5,17 +5,15 @@ import { ChevronDown, Eye, EyeOff } from 'lucide-react';
 import { Loader } from '../components/Loader';
 
 const Register: React.FC = () => {
-    const initialFormData = { email: '', password: '', firstname: '', lastname: '' };
+    const initialFormData = { email: '', password: '', firstname: '', lastname: '', role: 'PATIENT' };
     const [formData, setFormData] = useState(initialFormData);
     const [error, setError] = useState<string | null>(null);
     // const [success, setSuccess] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-    const navigate = useNavigate(); // Initialize useNavigate
-
-    // const [localErr, setLocalErr] = useState("");
+    const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value,
@@ -30,9 +28,15 @@ const Register: React.FC = () => {
         try {
             const response= await register(formData);
             if(response && response?.token){
-              localStorage.setItem('token', response.token);
-              setFormData(initialFormData);
-              navigate('/dashboard');
+                localStorage.setItem('token', response.token);
+                setFormData(initialFormData);
+                //   navigate('/dashboard');
+                if(response.userDetail.role === 'ADMIN'){
+                    navigate('/admin-dashboard'); 
+                }
+                else if(response.userDetail.role === 'PATIENT'){
+                    navigate('/patient-dashboard');
+                }
             }
             setFormData(initialFormData);
         } catch (error: any) {
@@ -46,9 +50,6 @@ const Register: React.FC = () => {
     return (
         <div
             style={{
-                // display: 'flex',
-                // justifyContent: 'center',
-                // alignItems: 'center',
                 minHeight: '100vh',
                 backgroundImage: 'url(/Blue.jpg)',
                 backgroundSize: 'cover',
@@ -61,8 +62,6 @@ const Register: React.FC = () => {
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    // padding: '1rem 2rem',
-                    // flexWrap: 'wrap',           // allows wrapping on small screens
                 }}
             >
                 <h1
@@ -203,6 +202,31 @@ const Register: React.FC = () => {
                             />
                         </div>
 
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '0.25rem', color: '#4B5563' }}>
+                            Role
+                        </label>
+                        <select
+                            name="role"
+                            value={formData.role}
+                            onChange={handleChange}
+                            required
+                            style={{
+                            width: '100%',
+                            padding: '0.5rem',
+                            borderRadius: '0.5rem',
+                            border: '1px solid #D1D5DB',
+                            boxSizing: 'border-box',
+                            backgroundColor: 'white',
+                            }}
+                        >
+                            <option value="">Select Role</option>
+                            <option value="ADMIN">ADMIN</option>
+                            <option value="PATIENT">PATIENT</option>
+                            <option value="USER">PROVIDER</option>
+                        </select>
+                        </div>
+
                         <div style={{ position: 'relative' }}>
                         <label style={{ display: 'block', marginBottom: '0.25rem', color: '#4B5563' }}>
                             Password
@@ -246,6 +270,7 @@ const Register: React.FC = () => {
                             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                             </button>
                         </div>
+                        
 
                         <button
                         type="submit"

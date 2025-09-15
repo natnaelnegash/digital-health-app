@@ -23,11 +23,11 @@ export interface CustomRequest extends Request {
 // === USER REGISTRATION ===
 export const register = async (req: Request, res: Response): Promise<Response> => {
     try {
-        const { email, password, firstname, lastname } = req.body;
+        const { email, password, firstname, lastname, role } = req.body;
         if (!email || !password) {
             return res.status(400).json({ message: 'Email and password are required' });
         }
-        const newUser = await AuthService.registerUser({ email, password, firstname,lastname });
+        const newUser = await AuthService.registerUser({ email, password, firstname,lastname, role });
         return res.status(201).json(newUser);
     } catch (error: any) {
         if (error.message.includes('already exists')) {

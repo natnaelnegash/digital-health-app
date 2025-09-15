@@ -27,11 +27,16 @@ const Login: React.FC = () => {
 
         try {
             const response = await login(formData);
-            // console.log("response token:", response.token)
+            console.log("response token:", response, "\n\nuserDetail", response.userDetail)
             if(response.token){
-              localStorage.setItem('token', response.token); // Store token for authenticated requests
-              // setSuccess('Login successful!');
-              navigate('/dashboard');
+                localStorage.setItem('token', response.token); 
+                // navigate('/dashboard');
+                if(response.userDetail.role === 'ADMIN'){
+                    navigate('/admin-dashboard'); 
+                }
+                else if(response.userDetail.role === 'PATIENT'){
+                    navigate('/patient-dashboard');
+                }
             }
             // Redirect or perform further actions here
             // Example: navigate('/dashboard'); // Redirect to dashboard after successful login
