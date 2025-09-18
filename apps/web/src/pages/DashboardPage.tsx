@@ -225,7 +225,7 @@ const DashboardPage = () => {
                         <TableCell>{appt.reason === '' ? '-' : appt.reason}</TableCell>
                         <TableCell>
                           <Badge variant={getStatusVariant(appt.status)}>
-                            {appt.status === 'SCHEDULED' ? 'MISSED' : 'CANCELED'}
+                            {appt.status == 'SCHEDULED' ? 'MISSED' : appt.status}
                           </Badge>
                         </TableCell>
                         <TableCell>

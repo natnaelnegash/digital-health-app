@@ -4,6 +4,7 @@ import appointmentRouter from './appointments/appointments.routes'
 import userRouter from './users/user.routes'
 import noteRouter from './notes/notes.routes'
 import patientRouter from './patients/patients.routes'
+import recordsRouter from './records/records.routes';
 import cors from 'cors'
 
 const app = express()
@@ -23,6 +24,8 @@ appointmentRouter.use('/:appointmentId/note', noteRouter);
 app.use('/api/auth', authRouter)
 app.use('/api/users', userRouter)
 app.use('/api/patients', patientRouter)
+
+patientRouter.use('/:patientId/records', recordsRouter);
 
 app.listen(port, () => {
     console.log(`🚀 API server listening on http://localhost:${port}`)

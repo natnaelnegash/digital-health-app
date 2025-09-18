@@ -1,7 +1,7 @@
 import prisma from "../db";
 import bcrypt from 'bcryptjs'
 import jwt from "jsonwebtoken";
-import {User} from '@prisma/client'
+import {User, Role} from '@prisma/client'
 
 export const registerUser = async (userData: Pick<User, 'email' | 'password' | 'role'>) => {
     const {email, password, role} = userData
@@ -12,13 +12,34 @@ export const registerUser = async (userData: Pick<User, 'email' | 'password' | '
 
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    const newUser = await prisma.user.create({
+    const userRole = role == "PROVIDER" ? "PROVIDER" : "PATIENT"
+
+    const newUser = await prisma.$transaction(async (tx) => {
+    const user = await tx.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        role: userRole,
+      },
+    });
+
+    // Create the corresponding profile based on the role
+    if (userRole === Role.PATIENT) {
+      await tx.patient.create({
         data: {
-            email, 
-            password: hashedPassword,
-            role
-        }
-    })
+          userId: user.id,
+        },
+      });
+    } else if (userRole === Role.PROVIDER) {
+      await tx.provider.create({
+        data: {
+          userId: user.id,
+        },
+      });
+    }
+
+    return user;
+  });
 
     const {password: _, ...userWithoutPassword} = newUser
     return userWithoutPassword

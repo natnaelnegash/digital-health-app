@@ -17,6 +17,15 @@ export const createOrUpdateNote = async (appointmentId: string , noteContent: st
     if (appointment.providerId !== providerId) {
         throw new Error('Forbidden: Appointment doesnt belong to you')
     }
+    const now = new Date()
+    if (appointment.status !== "COMPLETED" && now < appointment.startTime) {
+        await prisma.appointment.update({
+            where: {id: appointmentId},
+            data: {
+                status: "COMPLETED"
+            }
+        })
+    }
 
     const note = await prisma.clinicalNote.upsert({
         where: {appointmentId: appointmentId},
