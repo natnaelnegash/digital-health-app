@@ -6,6 +6,6 @@ export const getNotes = async (appointmentId: string) => {
 }
 
 export const saveNotes = async (appointmentId: string, content: string ) => {
-    const response = await apiClient.post(`/appointments/${appointmentId}/note`, content)
+    const response = await apiClient.post(`/appointments/${appointmentId}/note`, {content})
     return response.data
 }

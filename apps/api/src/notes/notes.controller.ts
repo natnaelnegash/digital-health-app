@@ -23,6 +23,7 @@ export const createOrUpdate = async (req: Request, res: Response) => {
     try {
         const {id} = req.params
         const {content} = req.body
+        
         const userRole = req.user!.role
         const providerId = req.user!.userId
 
@@ -41,6 +42,7 @@ export const createOrUpdate = async (req: Request, res: Response) => {
         if (error.message.includes('Forbidden')) {
             return res.status(403).json({message: 'This appointment doenst belong to you'})
         }
-        return res.status(500).json({message: error.message || 'Internal server error'})
+        console.log(error);
+        return res.status(500).json({message: error || 'Internal server error'})
     }
 }

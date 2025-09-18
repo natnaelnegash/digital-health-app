@@ -139,6 +139,7 @@ const AppointmentDetailsPage = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
             <strong>Clinical Note </strong>
             <textarea
+              name="content"
               value={noteContent}
               onChange={(e) => setNoteContent(e.target.value)}
               rows={10}
