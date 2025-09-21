@@ -3,7 +3,6 @@
 A full-stack web application designed to streamline patient-provider interactions through a modern, web-based appointment scheduling and medical record management system. This project is built with a focus on a clean, scalable architecture and a professional user experience.
 
 ![Login Page Screenshot](https://drive.google.com/file/d/1Uqjn38ARlJjGWBS7U18KGACDD-cEb7Dj/view?usp=drive_link)
-_([TODO]: Replace this with an actual screenshot of your polished login page)_
 
 ## Table of Contents
 
@@ -129,8 +128,7 @@ The backend API requires an `.env` file with credentials for the database and ot
   - **Windows (PowerShell):** `cp .env.example .env`
   - **Mac/Linux:** `cp .env.example .env`
 - The default values in the `.env` file are already configured to work with the Docker Compose setup. You do not need to change them for local development.
-
-_([TODO]: Create a `.env.example` file in your `apps/api` directory with all the necessary keys but with placeholder values, like `JWT_SECRET=""`. This is a crucial best practice.)_
+- 
 
 ### 4. Start the Development Services
 
@@ -204,4 +202,3 @@ This project is a solid foundation. Here are some of the planned next steps:
 
 ---
 
-_([TODO]: Feel free to add a "Contributing" section if you plan to have other developers work on this with you, outlining your branching strategy and pull request process.)_
