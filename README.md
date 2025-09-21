@@ -2,7 +2,7 @@
 
 A full-stack web application designed to streamline patient-provider interactions through a modern, web-based appointment scheduling and medical record management system. This project is built with a focus on a clean, scalable architecture and a professional user experience.
 
-![Login Page Screenshot](https://via.placeholder.com/800x500.png?text=Login+Page+Screenshot+[TODO])
+![Login Page Screenshot](https://drive.google.com/file/d/1Uqjn38ARlJjGWBS7U18KGACDD-cEb7Dj/view?usp=drive_link)
 _([TODO]: Replace this with an actual screenshot of your polished login page)_
 
 ## Table of Contents
